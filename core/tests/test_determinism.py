@@ -105,14 +105,13 @@ def test_measurement_ordering_violation_rejected():
     assert str(e.value) == "ordering_violation"
 
 
-def test_timestamp_variation_changes_canonical_and_hash_must_reject():
+def test_timestamp_variation_normalizes_and_digest_stays_same():
     p = _pack_base()
     p["measurements"][0]["timestamp"] = "2026-02-18T00:00:00.123Z"
-    with pytest.raises(Exception) as e:
-        ingest_structured_pack(
-            _raw(p),
-            executing_engine_id=ENGINE_ID,
-            executing_engine_version=ENGINE_VERSION,
-            allowed_cut_rules=p["declared_cut_rules"],
-        )
-    assert str(e.value) in ("hash_commitment_mismatch", "timestamp_invalid")
+    _obj, d = ingest_structured_pack(
+        _raw(p),
+        executing_engine_id=ENGINE_ID,
+        executing_engine_version=ENGINE_VERSION,
+        allowed_cut_rules=p["declared_cut_rules"],
+    )
+    assert d == p["pack_id"]

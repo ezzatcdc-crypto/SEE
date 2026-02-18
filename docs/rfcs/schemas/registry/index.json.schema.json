@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:see:rfc:core-artifacts-001:registry_index:1.0",
+  "title": "registry/index.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "updated_at", "latest"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "updated_at": { "type": "string", "format": "date-time", "pattern": "Z$" },
+    "latest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["run_id", "run_manifest_hash"],
+      "properties": {
+        "run_id": { "type": "string", "minLength": 1, "pattern": "^[A-Za-z0-9._-]+$" },
+        "run_manifest_hash": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      }
+    }
+  }
+}

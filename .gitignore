@@ -22,3 +22,17 @@ venv/
 # SEE runtime outputs (must not be committed)
 out/
 runs/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+
+# Build / outputs
+out/
+core/out/
+dist/
+build/

@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.dist/
+dist/
+build/
+
+# Virtual env
+.venv/
+venv/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+
+# SEE runtime outputs (must not be committed)
+out/
+runs/

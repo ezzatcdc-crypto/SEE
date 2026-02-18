@@ -1,0 +1,258 @@
+diff --git a/core/.gitkeep b/core/.gitkeep
+new file mode 100644
+--- /dev/null
++++ b/core/.gitkeep
+@@
++
+diff --git a/core/README.md b/core/README.md
+new file mode 100644
+--- /dev/null
++++ b/core/README.md
+@@
++# SEE CORE (engine skeleton)
++
++This directory contains the deterministic CORE engine implementation scaffold.
++
++Scope:
++- Structured Pack ingestion
++- Deterministic run directory creation
++- Canonical artifact emission (placeholders + commitments)
++
++Non-scope:
++- Any LAB governance logic
++- Any CONTROL tooling logic
++- Any network calls or plugin loading
++
+diff --git a/core/pyproject.toml b/core/pyproject.toml
+new file mode 100644
+--- /dev/null
++++ b/core/pyproject.toml
+@@
++[project]
++name = "see-core"
++version = "0.1.0"
++description = "SEE CORE deterministic engine (skeleton)"
++requires-python = ">=3.11"
++dependencies = []
++
++[project.scripts]
++see-core = "see_core.cli:main"
++
++[tool.pytest.ini_options]
++testpaths = ["tests"]
++
+diff --git a/core/see_core/__init__.py b/core/see_core/__init__.py
+new file mode 100644
+--- /dev/null
++++ b/core/see_core/__init__.py
+@@
++__all__ = ["__version__"]
++__version__ = "0.1.0"
++
+diff --git a/core/see_core/cli.py b/core/see_core/cli.py
+new file mode 100644
+--- /dev/null
++++ b/core/see_core/cli.py
+@@
++import argparse
++import json
++from pathlib import Path
++
++from .engine import run_core
++
++
++def main() -> None:
++    p = argparse.ArgumentParser(prog="see-core")
++    p.add_argument("--pack", required=True, help="Path to Structured Pack JSON")
++    p.add_argument("--out", required=True, help="Output directory for CORE run artifacts")
++    args = p.parse_args()
++
++    pack_path = Path(args.pack).expanduser().resolve()
++    out_dir = Path(args.out).expanduser().resolve()
++
++    result = run_core(pack_path=pack_path, out_dir=out_dir)
++    print(json.dumps(result, indent=2, sort_keys=True))
++
+diff --git a/core/see_core/engine.py b/core/see_core/engine.py
+new file mode 100644
+--- /dev/null
++++ b/core/see_core/engine.py
+@@
++from __future__ import annotations
++
++import json
++import os
++import platform
++import sys
++from dataclasses import dataclass
++from datetime import datetime, timezone
++from hashlib import sha256
++from pathlib import Path
++from typing import Any, Dict, Tuple
++
++
++CANONICAL_ARTIFACTS = (
++    "run_manifest.json",
++    "data_snapshot.json",
++    "indicators.json",
++    "patterns_drift.json",
++    "timeline.json",
++)
++
++
++def _read_json(path: Path) -> Dict[str, Any]:
++    data = json.loads(path.read_text(encoding="utf-8"))
++    if not isinstance(data, dict):
++        raise ValueError("Structured Pack must be a JSON object")
++    return data
++
++
++def _stable_json_bytes(obj: Any) -> bytes:
++    return json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
++
++
++def _sha256_hex(b: bytes) -> str:
++    return sha256(b).hexdigest()
++
++
++def _utc_now_iso() -> str:
++    # Determinism note: timestamp exists for audit only; not used to derive hashes.
++    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
++
++
++def _env_fingerprint() -> Dict[str, str]:
++    # Explicitly recorded to support reproducibility claims, not used for output derivation.
++    return {
++        "python": sys.version.split()[0],
++        "platform": platform.platform(),
++        "implementation": platform.python_implementation(),
++    }
++
++
++def _ensure_no_network() -> None:
++    # Best-effort guard: engine code must not perform network calls. This is a placeholder policy check.
++    # No sockets imported/used in this skeleton.
++    return
++
++
++def _write_artifact(path: Path, payload: Any) -> str:
++    b = _stable_json_bytes(payload)
++    path.write_bytes(b)
++    return _sha256_hex(b)
++
++
++def _make_run_dir(out_dir: Path, run_commitment: str) -> Path:
++    run_dir = out_dir / "runs" / run_commitment
++    run_dir.mkdir(parents=True, exist_ok=False)
++    return run_dir
++
++
++def _make_registry(out_dir: Path, run_commitment: str) -> None:
++    reg_dir = out_dir / "registry"
++    reg_dir.mkdir(parents=True, exist_ok=True)
++    index_path = reg_dir / "index.json"
++    payload = {
++        "latest_run_commitment": run_commitment,
++        "updated_at": _utc_now_iso(),
++    }
++    index_path.write_bytes(_stable_json_bytes(payload))
++
++
++def _compute_run_commitment(pack: Dict[str, Any]) -> str:
++    # Commitment is derived from the pack content only (stable JSON), not from runtime clocks.
++    return _sha256_hex(_stable_json_bytes(pack))
++
++
++def run_core(pack_path: Path, out_dir: Path) -> Dict[str, Any]:
++    _ensure_no_network()
++
++    pack = _read_json(pack_path)
++    run_commitment = _compute_run_commitment(pack)
++
++    run_dir = _make_run_dir(out_dir=out_dir, run_commitment=run_commitment)
++
++    # Canonical outputs (placeholders for now)
++    data_snapshot = {"structured_pack": pack}
++    indicators = {"indicators": [], "note": "skeleton"}
++    patterns_drift = {"patterns": [], "drift": [], "note": "skeleton"}
++    timeline = {"timeline": [], "note": "skeleton"}
++
++    artifact_hashes: Dict[str, str] = {}
++    artifact_hashes["data_snapshot.json"] = _write_artifact(run_dir / "data_snapshot.json", data_snapshot)
++    artifact_hashes["indicators.json"] = _write_artifact(run_dir / "indicators.json", indicators)
++    artifact_hashes["patterns_drift.json"] = _write_artifact(run_dir / "patterns_drift.json", patterns_drift)
++    artifact_hashes["timeline.json"] = _write_artifact(run_dir / "timeline.json", timeline)
++
++    run_manifest = {
++        "run_commitment": run_commitment,
++        "engine": {
++            "name": "see-core",
++            "version": "0.1.0",
++        },
++        "inputs": {
++            "structured_pack_sha256": _sha256_hex(_stable_json_bytes(pack)),
++            "pack_path": str(pack_path),
++        },
++        "environment": _env_fingerprint(),
++        "artifacts": [{"name": k, "sha256": v} for k, v in sorted(artifact_hashes.items())],
++        "created_at": _utc_now_iso(),
++    }
++
++    artifact_hashes["run_manifest.json"] = _write_artifact(run_dir / "run_manifest.json", run_manifest)
++
++    # Update registry pointer (non-authoritative convenience index)
++    _make_registry(out_dir=out_dir, run_commitment=run_commitment)
++
++    return {
++        "run_commitment": run_commitment,
++        "run_dir": str(run_dir),
++        "artifacts": artifact_hashes,
++    }
++
+diff --git a/core/tests/test_determinism.py b/core/tests/test_determinism.py
+new file mode 100644
+--- /dev/null
++++ b/core/tests/test_determinism.py
+@@
++import json
++from pathlib import Path
++from tempfile import TemporaryDirectory
++
++from see_core.engine import run_core
++
++
++def test_same_pack_same_commitment_and_artifacts() -> None:
++    pack = {"envelope": {"pack_version": "0"}, "data": {"x": 1}}
++
++    with TemporaryDirectory() as td:
++        td_path = Path(td)
++        pack_path = td_path / "pack.json"
++        pack_path.write_text(json.dumps(pack), encoding="utf-8")
++
++        out1 = td_path / "out1"
++        out2 = td_path / "out2"
++        out1.mkdir()
++        out2.mkdir()
++
++        r1 = run_core(pack_path=pack_path, out_dir=out1)
++        r2 = run_core(pack_path=pack_path, out_dir=out2)
++
++        assert r1["run_commitment"] == r2["run_commitment"]
++        assert set(r1["artifacts"].keys()) == set(r2["artifacts"].keys())
++
+diff --git a/core/Makefile b/core/Makefile
+new file mode 100644
+--- /dev/null
++++ b/core/Makefile
+@@
++.PHONY: test
++
++test:
++	python -m pytest -q
++
+diff --git a/core/.python-version b/core/.python-version
+new file mode 100644
+--- /dev/null
++++ b/core/.python-version
+@@
++3.11

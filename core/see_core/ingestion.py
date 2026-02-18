@@ -1,30 +1,30 @@
+from __future__ import annotations
+
 import json
-from pathlib import Path
+from typing import Any, Dict, Optional, Tuple
+
+from .validation import IngestionRejection, validate_and_commit_hash
 
 
-class IngestionError(Exception):
-    pass
-
-
-def ingest(pack_path: Path) -> dict:
-    """
-    CORE ingestion boundary.
-    Validity is created ONLY here.
-    """
-
-    if not pack_path.exists():
-        raise IngestionError(f"PACK_NOT_FOUND: {pack_path}")
-
+def ingest_structured_pack(
+    raw_json: bytes,
+    *,
+    executing_engine_id: str,
+    executing_engine_version: str,
+    allowed_cut_rules: Optional[list[str]] = None,
+) -> Tuple[Dict[str, Any], str]:
     try:
-        pack = json.loads(pack_path.read_text(encoding="utf-8"))
+        obj = json.loads(raw_json.decode("utf-8"))
     except Exception as e:
-        raise IngestionError(f"PACK_INVALID_JSON: {e}") from e
+        raise IngestionRejection("pack_not_valid_json") from e
 
-    # Minimal non-semantic structural check (placeholder for the real schema contract)
-    if not isinstance(pack, dict):
-        raise IngestionError("PACK_ROOT_NOT_OBJECT")
+    if not isinstance(obj, dict):
+        raise IngestionRejection("pack_not_object")
 
-    # The ingestion layer is the only place that may accept/reject.
-    # Anything else (Template/SPB) is eligibility only.
-
-    return pack
+    _payload_bytes, digest = validate_and_commit_hash(
+        obj,
+        executing_engine_id=executing_engine_id,
+        executing_engine_version=executing_engine_version,
+        allowed_cut_rules=allowed_cut_rules,
+    )
+    return obj, digest

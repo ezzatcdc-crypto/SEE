@@ -1,0 +1,2 @@
+[console_scripts]
+see-core = see_core.cli:main

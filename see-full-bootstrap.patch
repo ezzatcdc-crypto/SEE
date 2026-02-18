@@ -1,0 +1,150 @@
+*** BEGIN PATCH
+diff --git a/.github/CODEOWNERS b/.github/CODEOWNERS
+new file mode 100644
+--- /dev/null
++++ b/.github/CODEOWNERS
+@@
+* @Ezzat-Baghdadi
+
+diff --git a/.github/workflows/integrity_check.yml b/.github/workflows/integrity_check.yml
+new file mode 100644
+--- /dev/null
++++ b/.github/workflows/integrity_check.yml
+@@
+name: SEE Freeze Integrity Check
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+jobs:
+  integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Ensure frozen architecture exists
+        run: |
+          if [ ! -f SEE_SYSTEM_ARCHITECTURE_FREEZE_v1.zip ]; then
+            echo "Frozen architecture bundle missing."
+            exit 1
+          fi
+
+diff --git a/README.md b/README.md
+new file mode 100644
+--- /dev/null
++++ b/README.md
+@@
+# SEE — Structural Evidence Engine
+
+Status: LOCKED (Architecture Freeze v1.0.0)
+
+This repository contains the frozen constitutional architecture of SEE.
+
+All architectural modifications require:
+- Amendment RFC
+- Governance approval
+- Version increment
+
+Execution code MUST NOT redefine constitutional boundaries.
+
+See:
+- SEE Constitution v1.0
+- RFC-SEE-CORE-001
+- RFC-SEE-LAB-001
+- Addendum A
+- RFC-SEE-CONTROL-001
+
+diff --git a/SECURITY.md b/SECURITY.md
+new file mode 100644
+--- /dev/null
++++ b/SECURITY.md
+@@
+# Security Policy
+
+This repository defines architectural governance artifacts only.
+
+No runtime engine code is included.
+
+All security disclosures must be submitted via private channel.
+
+diff --git a/CODE_OF_CONDUCT.md b/CODE_OF_CONDUCT.md
+new file mode 100644
+--- /dev/null
++++ b/CODE_OF_CONDUCT.md
+@@
+# Code of Conduct
+
+All contributors SHALL respect the constitutional structure of SEE.
+
+Architectural violations SHALL be rejected.
+
+diff --git a/governance/GOVERNANCE.md b/governance/GOVERNANCE.md
+new file mode 100644
+--- /dev/null
++++ b/governance/GOVERNANCE.md
+@@
+# SEE Governance Model
+
+Architecture is frozen at v1.0.0.
+
+Changes require:
+1. Draft Amendment RFC
+2. Constitutional consistency check
+3. Explicit approval
+4. Version update
+
+Direct modification to constitutional files is prohibited.
+
+diff --git a/governance/DECISION_LOG.md b/governance/DECISION_LOG.md
+new file mode 100644
+--- /dev/null
++++ b/governance/DECISION_LOG.md
+@@
+# Decision Log
+
+All structural decisions SHALL be recorded here.
+
+Format:
+- Decision ID
+- Date
+- Scope
+- Affected RFC
+- Version impact
+
+diff --git a/docs/authority/README.md b/docs/authority/README.md
+new file mode 100644
+--- /dev/null
++++ b/docs/authority/README.md
+@@
+This directory defines authoritative constitutional references.
+
+Only documents explicitly declared as frozen SHALL reside here.
+
+diff --git a/.github/pull_request_template.md b/.github/pull_request_template.md
+new file mode 100644
+--- /dev/null
++++ b/.github/pull_request_template.md
+@@
+## Pull Request Checklist
+
+- [ ] No constitutional boundary violation
+- [ ] No cross-layer coupling introduced
+- [ ] No modification to frozen RFC without amendment
+- [ ] Version impact declared
+
+diff --git a/.github/ISSUE_TEMPLATE.md b/.github/ISSUE_TEMPLATE.md
+new file mode 100644
+--- /dev/null
++++ b/.github/ISSUE_TEMPLATE.md
+@@
+## Issue Type
+- [ ] Amendment Proposal
+- [ ] Clarification Request
+- [ ] Execution Implementation
+- [ ] Bug
+
+Provide:
+- Context
+- Affected RFC
+- Proposed action
+
+*** END PATCH

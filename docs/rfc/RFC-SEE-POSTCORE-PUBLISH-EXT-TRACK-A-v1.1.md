@@ -1,9 +1,9 @@
 # RFC-SEE-POSTCORE-PUBLISH-EXT-TRACK-A v1.1
 ## Deterministic Bundle Packaging Profile
 
-Status: EXTENSION  
-Layer: POSTCORE_PUBLISH  
-Authority: Post-POSTCORE_REPORTING Only  
+Status: EXTENSION
+Layer: POSTCORE_PUBLISH
+Authority: Post-POSTCORE_REPORTING Only
 
 Scope
 

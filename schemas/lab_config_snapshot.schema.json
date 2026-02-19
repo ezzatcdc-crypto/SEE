@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "LAB Configuration Snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "snapshot_id",
+    "version",
+    "issued_at",
+    "paradigm_ref",
+    "concept_registry_hash",
+    "indicator_map",
+    "measurement_schema"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "snapshot_id": { "type": "string", "minLength": 3 },
+    "version": { "type": "string", "minLength": 1 },
+    "issued_at": { "type": "string" },
+    "paradigm_ref": { "type": "string", "minLength": 1 },
+    "concept_registry_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "indicator_map": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["indicator_id", "concept_id", "rule_ref"],
+        "properties": {
+          "indicator_id": { "type": "string", "pattern": "^[A-Z0-9_\\-]{3,64}$" },
+          "concept_id": { "type": "string", "pattern": "^[A-Z0-9_\\-]{3,64}$" },
+          "rule_ref": { "type": "string", "minLength": 1 },
+          "units": { "type": "string" },
+          "window": { "type": "string" }
+        }
+      }
+    },
+    "measurement_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["measurements"],
+      "properties": {
+        "measurements": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["measurement_id", "indicator_id", "dtype"],
+            "properties": {
+              "measurement_id": { "type": "string", "pattern": "^[A-Z0-9_\\-]{3,64}$" },
+              "indicator_id": { "type": "string", "pattern": "^[A-Z0-9_\\-]{3,64}$" },
+              "dtype": { "type": "string", "enum": ["int", "float", "string", "bool"] },
+              "nullable": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

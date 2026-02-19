@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CONTROL Structured Pack Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "issued_at",
+    "structured_pack_path",
+    "structured_pack_hash",
+    "concept_registry_hash",
+    "lab_config_hash"
+  ],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "run_id": { "type": "string", "minLength": 3 },
+    "issued_at": { "type": "string" },
+    "structured_pack_path": { "type": "string", "minLength": 1 },
+    "structured_pack_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "concept_registry_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "lab_config_hash": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+    "notes": { "type": "string" }
+  }
+}

@@ -45,7 +45,7 @@ def build_core_pack_from_emte(emte: Dict[str, Any], *, engine_id: str, engine_ve
             "dimensions": dimensions,
         },
         "measurements": [],
-        "declared_cut_rules": sorted(set(cr)),
+        "declared_cut_rules": (sorted(set(emte.get("cut_rules") or [])) or ["CUT::NONE"]),
         "engine_reference": {"engine_id": engine_id, "engine_version": engine_version},
         "hash_commitment": {"algorithm": "SHA-256", "payload_digest": "0" * 64},
     }

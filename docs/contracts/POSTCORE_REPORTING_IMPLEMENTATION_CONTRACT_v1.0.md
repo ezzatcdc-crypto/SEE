@@ -52,3 +52,4 @@
 7.3 Implementations SHALL NOT participate in admission, authorization, or ingestion.  
 7.4 Implementations SHALL NOT share runtime state with CORE.  
 7.5 Implementations SHALL NOT require external mutable state to satisfy this contract.
+

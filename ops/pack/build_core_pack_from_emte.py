@@ -53,8 +53,8 @@ def build_core_pack_from_emte(emte: Dict[str, Any], *, engine_id: str, engine_ve
     for m in sorted(measurements_in, key=lambda x: ((_m_dim(x) if "_m_dim" in globals() else (x["dimension"] if "dimension" in x else x["universe_id"])), (_m_ts(x) if "_m_ts" in globals() else (x["timestamp"] if "timestamp" in x else x["window"]["end"])))):
         pack["measurements"].append(
             {
-                "dimension": m["universe_id"],
-                "timestamp": m["window"]["end"],
+                "dimension": (_m_dim(m) if "_m_dim" in globals() else m.get("dimension", m.get("universe_id"))),
+                "timestamp": (_m_ts(m) if "_m_ts" in globals() else (m.get("timestamp") or m["window"]["end"])),
                 "value": int(m["value"]),
             }
         )

@@ -41,7 +41,7 @@ def build_core_pack_from_emte(emte: Dict[str, Any], *, engine_id: str, engine_ve
         "pack_id": "0" * 64,
         "measurement_universe": {
             "universe_id": _sha256_hex(("UNIVERSE::" + "|".join(dimensions)).encode("utf-8")),
-            "as_of": max(m["window"]["end"] for m in measurements_in),
+            "as_of": max((m["timestamp"] if "timestamp" in m else m["window"]["end"]) for m in measurements_in),
             "dimensions": dimensions,
         },
         "measurements": [],

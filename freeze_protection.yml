@@ -1,0 +1,15 @@
+name: Freeze Protection
+
+on:
+  pull_request:
+    paths:
+      - 'frozen/**'
+
+jobs:
+  block-freeze-modification:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Block modification to frozen directory
+        run: |
+          echo "Modification to /frozen directory is prohibited."
+          exit 1

@@ -16,7 +16,21 @@ def _sha256_hex(b: bytes) -> str:
 
 def build_core_pack_from_emte(emte: Dict[str, Any], *, engine_id: str, engine_version: str) -> Dict[str, Any]:
     measurements_in = emte["measurements"]
-    dimensions: List[str] = sorted({m["universe_id"] for m in measurements_in})
+    # Deterministic dimension collection:
+    # Prefer measurement_universe.dimensions when present;
+    # otherwise derive from measurements[*].dimension (fallback: universe_id for legacy inputs).
+    mu_in = emte.get("measurement_universe") or {}
+    dims_in = mu_in.get("dimensions")
+    if dims_in is not None:
+        dimensions: List[str] = sorted(set(dims_in))
+    else:
+        def _dim(m: dict) -> str:
+            if "dimension" in m:
+                return m["dimension"]
+            if "universe_id" in m:
+                return m["universe_id"]
+            raise KeyError("measurements[] missing required key: 'dimension'")
+        dimensions = sorted({_dim(m) for m in measurements_in})
 
     cr = emte.get("cut_rules", [])
     if not isinstance(cr, list) or any(not isinstance(x, str) for x in cr):
